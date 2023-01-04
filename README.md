@@ -22,7 +22,16 @@
     yarn start:dev
     ```
 
-6. Reconstruir la base de datos
+6. Clonar el archivo `.env.example` y renombrarlo a `.env`
+
+7. Configurar las variables de entorno en el archivo `.env`
+
+8. Ejecutar
+    ```
+    yarn start:dev
+    ```
+   
+9. Reconstruir la base de datos
     ```
     localhost:3000/api/v2/seed
     ```

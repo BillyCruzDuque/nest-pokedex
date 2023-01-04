@@ -10,13 +10,19 @@ import { isValidObjectId, Model } from 'mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PokemonService {
+  private readonly defaultLimit: number;
+
   constructor(
     @InjectModel(Pokemon.name)
     private readonly pokemonModel: Model<Pokemon>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.defaultLimit = Number(this.configService.get<number>('default_limit'));
+  }
 
   async create(createPokemonDto: CreatePokemonDto) {
     createPokemonDto.name = createPokemonDto.name.toLocaleLowerCase();
@@ -29,7 +35,7 @@ export class PokemonService {
   }
 
   findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = this.defaultLimit, offset = 0 } = paginationDto;
     return this.pokemonModel
       .find()
       .limit(limit)
@@ -70,10 +76,6 @@ export class PokemonService {
   }
 
   async remove(_id: string) {
-    // const pokemon = await this.findOne(id);
-    // await pokemon.deleteOne();
-    // return this.pokemonModel.findByIdAndDelete(id);
-
     const { deletedCount } = await this.pokemonModel.deleteOne({
       _id,
     });
@@ -87,8 +89,6 @@ export class PokemonService {
       throw new BadRequestException(
         `Pokemon already exists ${JSON.stringify(error.keyValue)}`,
       );
-
-    console.log(error);
     throw new InternalServerErrorException('Bad Request - Check server logs');
   }
 }
